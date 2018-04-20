@@ -109,12 +109,12 @@ const Minesweeper = function ({width, height, initialMap = ''}) {
         return getBeforeValue({currentPosition: position, positionToReach: TOP_POSITION})
     };
 
-    const getTopLeftPosition = function ({position = 0} = {}) {
+    const getTopLeftValue = function ({position = 0} = {}) {
         return isThePreviousRow({currentPosition: position, positionToReach: TOP_LEFT_POSITION}) ?
             getBeforeValue({currentPosition: position, positionToReach: TOP_LEFT_POSITION}) : OUT_OF_BOUNDS_VALUE;
     };
 
-    const getTopRightPosition = function ({position = 0} = {}) {
+    const getTopRightValue = function ({position = 0} = {}) {
         return isThePreviousRow({currentPosition: position, positionToReach: TOP_RIGHT_POSITION}) ?
             getBeforeValue({currentPosition: position, positionToReach: TOP_RIGHT_POSITION}) : OUT_OF_BOUNDS_VALUE;
     };
@@ -124,23 +124,23 @@ const Minesweeper = function ({width, height, initialMap = ''}) {
             getAfterValue({currentPosition: position, positionToReach: RIGHT_POSITION}) : OUT_OF_BOUNDS_VALUE;
     };
 
-    const getBottomPosition = function ({position = initialMap.length} = {}) {
+    const getBottomValue = function ({position = initialMap.length} = {}) {
         return getAfterValue({currentPosition: position, positionToReach: BOTTOM_POSITION});
     };
 
-    const getBottomLeftPosition = function ({position = initialMap.length} = {}) {
+    const getBottomLeftValue = function ({position = initialMap.length} = {}) {
         return isTheNextRow({currentPosition: position, positionToReach: BOTTOM_LEFT_POSITION}) ?
             getAfterValue({currentPosition: position, positionToReach: BOTTOM_LEFT_POSITION}) : OUT_OF_BOUNDS_VALUE;
     };
 
-    const getBottomRightPosition = function ({position = initialMap.length} = {}) {
+    const getBottomRightValue = function ({position = initialMap.length} = {}) {
         return isTheNextRow({currentPosition: position, positionToReach: BOTTOM_RIGHT_POSITION}) ?
             getAfterValue({currentPosition: position, positionToReach: BOTTOM_RIGHT_POSITION}) : OUT_OF_BOUNDS_VALUE;
     };
 
     return Object.freeze({
-        showMap, safePositions, getLeftValue, getRightValue, getTopValue, getBottomPosition,
-        getTopLeftPosition, getTopRightPosition, getBottomLeftPosition, getBottomRightPosition
+        showMap, safePositions, getLeftValue, getRightValue, getTopValue, getBottomValue,
+        getTopLeftValue, getTopRightValue, getBottomLeftValue, getBottomRightValue
     });
 };
 
@@ -274,15 +274,15 @@ test('minesweeper can return the BOTTOM field value of a given field', (assert) 
     const minesweeper = Minesweeper({width: 3, height: 2, initialMap: '...*..'});
 
     const expectedValueSafe = '.';
-    const actualValueSafe   = minesweeper.getBottomPosition({position: 1});
+    const actualValueSafe   = minesweeper.getBottomValue({position: 1});
     assert.deepEqual(actualValueSafe, expectedValueSafe, `Bottom field's value is a safe position`);
 
     const expectedValueMine = '*';
-    const actualValueMine   = minesweeper.getBottomPosition({position: 0});
+    const actualValueMine   = minesweeper.getBottomValue({position: 0});
     assert.deepEqual(actualValueMine, expectedValueMine, `Bottom field's value is a mine`);
 
     const expectedValueOutOfBounds = '-';
-    const actualValueOutOfBounds   = minesweeper.getBottomPosition({position: 5});
+    const actualValueOutOfBounds   = minesweeper.getBottomValue({position: 5});
     assert.deepEqual(actualValueOutOfBounds, expectedValueOutOfBounds, `There is no field in the bottom position`);
 
 
@@ -293,19 +293,19 @@ test('minesweeper can return the TOP-LEFT field value of a given field', (assert
     const minesweeper = Minesweeper({width: 3, height: 2, initialMap: '*.....'});
 
     const expectedValueSafe = '.';
-    const actualValueSafe   = minesweeper.getTopLeftPosition({position: 5});
+    const actualValueSafe   = minesweeper.getTopLeftValue({position: 5});
     assert.deepEqual(actualValueSafe, expectedValueSafe, `Top-left field's value is a safe position`);
 
     const expectedValueMine = '*';
-    const actualValueMine   = minesweeper.getTopLeftPosition({position: 4});
+    const actualValueMine   = minesweeper.getTopLeftValue({position: 4});
     assert.deepEqual(actualValueMine, expectedValueMine, `Top-left field's value is a mine`);
 
     const expectedValueOutOfBoundsSecondRow = '-';
-    const actualValueOutOfBoundsSecondRow   = minesweeper.getTopLeftPosition({position: 3});
+    const actualValueOutOfBoundsSecondRow   = minesweeper.getTopLeftValue({position: 3});
     assert.deepEqual(actualValueOutOfBoundsSecondRow, expectedValueOutOfBoundsSecondRow, `There is no field in the top-left position`);
 
     const expectedValueOutOfBounds = '-';
-    const actualValueOutOfBounds   = minesweeper.getTopLeftPosition({position: 1});
+    const actualValueOutOfBounds   = minesweeper.getTopLeftValue({position: 1});
     assert.deepEqual(actualValueOutOfBounds, expectedValueOutOfBounds, `There is no field in the top-left position because you are in the first row`);
 
     assert.end();
@@ -315,19 +315,19 @@ test('minesweeper can return the TOP-RIGHT field value of a given field', (asser
     const minesweeper = Minesweeper({width: 3, height: 2, initialMap: '..*...'});
 
     const expectedValueSafe = '.';
-    const actualValueSafe   = minesweeper.getTopRightPosition({position: 3});
+    const actualValueSafe   = minesweeper.getTopRightValue({position: 3});
     assert.deepEqual(actualValueSafe, expectedValueSafe, `Top-right field's value is a safe position`);
 
     const expectedValueMine = '*';
-    const actualValueMine   = minesweeper.getTopRightPosition({position: 4});
+    const actualValueMine   = minesweeper.getTopRightValue({position: 4});
     assert.deepEqual(actualValueMine, expectedValueMine, `Top-right field's value is a mine`);
 
     const expectedValueOutOfBoundsSecondRow = '-';
-    const actualValueOutOfBoundsSecondRow   = minesweeper.getTopRightPosition({position: 5});
+    const actualValueOutOfBoundsSecondRow   = minesweeper.getTopRightValue({position: 5});
     assert.deepEqual(actualValueOutOfBoundsSecondRow, expectedValueOutOfBoundsSecondRow, `There is no field in the top-right position`);
 
     const expectedValueOutOfBounds = '-';
-    const actualValueOutOfBounds   = minesweeper.getTopRightPosition({position: 1});
+    const actualValueOutOfBounds   = minesweeper.getTopRightValue({position: 1});
     assert.deepEqual(actualValueOutOfBounds, expectedValueOutOfBounds, `There is no field in the top-right position because you are in the firs row`);
 
     assert.end();
@@ -337,19 +337,19 @@ test('minesweeper can return the BOTTOM-LEFT field value of a given field', (ass
     const minesweeper = Minesweeper({width: 3, height: 2, initialMap: '...*..'});
 
     const expectedValueSafe = '.';
-    const actualValueSafe   = minesweeper.getBottomLeftPosition({position: 2});
+    const actualValueSafe   = minesweeper.getBottomLeftValue({position: 2});
     assert.deepEqual(actualValueSafe, expectedValueSafe, `Bottom-left field's value is a safe position`);
 
     const expectedValueMine = '*';
-    const actualValueMine   = minesweeper.getBottomLeftPosition({position: 1});
+    const actualValueMine   = minesweeper.getBottomLeftValue({position: 1});
     assert.deepEqual(actualValueMine, expectedValueMine, `Bottom-left field's value is a mine`);
 
     const expectedValueOutOfBoundsFirstRow = '-';
-    const actualValueOutOfBoundsFirstRow   = minesweeper.getBottomLeftPosition({position: 0});
+    const actualValueOutOfBoundsFirstRow   = minesweeper.getBottomLeftValue({position: 0});
     assert.deepEqual(actualValueOutOfBoundsFirstRow, expectedValueOutOfBoundsFirstRow, `There is no field in the bottom-left position`);
 
     const expectedValueOutOfBounds = '-';
-    const actualValueOutOfBounds   = minesweeper.getBottomLeftPosition({position: 5});
+    const actualValueOutOfBounds   = minesweeper.getBottomLeftValue({position: 5});
     assert.deepEqual(actualValueOutOfBounds, expectedValueOutOfBounds, `There is no field in the bottom-left position because you are in the last row`);
 
     assert.end();
@@ -359,19 +359,19 @@ test('minesweeper can return the BOTTOM-RIGHT field value of a given field', (as
     const minesweeper = Minesweeper({width: 3, height: 2, initialMap: '.....*'});
 
     const expectedValueSafe = '.';
-    const actualValueSafe   = minesweeper.getBottomRightPosition({position: 0});
+    const actualValueSafe   = minesweeper.getBottomRightValue({position: 0});
     assert.deepEqual(actualValueSafe, expectedValueSafe, `Bottom-right field's value is a safe position`);
 
     const expectedValueMine = '*';
-    const actualValueMine   = minesweeper.getBottomRightPosition({position: 1});
+    const actualValueMine   = minesweeper.getBottomRightValue({position: 1});
     assert.deepEqual(actualValueMine, expectedValueMine, `Bottom-right field's value is a mine`);
 
     const expectedValueOutOfBoundsFirstRow = '-';
-    const actualValueOutOfBoundsFirstRow   = minesweeper.getBottomRightPosition({position: 2});
+    const actualValueOutOfBoundsFirstRow   = minesweeper.getBottomRightValue({position: 2});
     assert.deepEqual(actualValueOutOfBoundsFirstRow, expectedValueOutOfBoundsFirstRow, `There is no field in the bottom-right position`);
 
     const expectedValueOutOfBounds = '-';
-    const actualValueOutOfBounds   = minesweeper.getBottomRightPosition({position: 5});
+    const actualValueOutOfBounds   = minesweeper.getBottomRightValue({position: 5});
     assert.deepEqual(actualValueOutOfBounds, expectedValueOutOfBounds, `There is no field in the bottom-right position because you are in the last row`);
 
 
