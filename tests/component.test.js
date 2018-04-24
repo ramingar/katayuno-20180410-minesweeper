@@ -19,11 +19,11 @@ const Minesweeper = function ({width, height, initialMap = ''}) {
     const BOTTOM_RIGHT_POSITION = BOTTOM_POSITION + RIGHT_POSITION;
 
     const showMap = function () {
-        const solveMap = (acc, currentValue, index) =>
-            acc += isMine({value: currentValue}) ? '*' : getMines({position: index});
+        const solveMinesweeper = (acc, currentValue, index) =>
+            acc += isMine({value: currentValue}) ? MINE_VALUE : getSurroundingMines({position: index});
 
         return buildBoard(
-            initialMap.split('').reduce(solveMap, '')
+            initialMap.split('').reduce(solveMinesweeper, '')
         );
     };
 
@@ -114,7 +114,7 @@ const Minesweeper = function ({width, height, initialMap = ''}) {
             getAfterValue({currentPosition: position, positionToReach: BOTTOM_RIGHT_POSITION}) : OUT_OF_BOUNDS_VALUE;
     };
 
-    const getMines = function ({position}) {
+    const getSurroundingMines = function ({position}) {
         const countMines = (acc, currentValue) => isMine({value: currentValue}) ? ++acc : acc;
         return [
             getTopLeftValue({position}),
@@ -131,7 +131,7 @@ const Minesweeper = function ({width, height, initialMap = ''}) {
     return Object.freeze({
         showMap, getLeftValue, getRightValue, getTopValue, getBottomValue,
         getTopLeftValue, getTopRightValue, getBottomLeftValue, getBottomRightValue,
-        getMines
+        getSurroundingMines
     });
 };
 
@@ -363,23 +363,23 @@ test('minesweeper can return how many mines are in a field\'s surroundings', (as
     const minesweeper = Minesweeper({width: 4, height: 5, initialMap: '.*...**....****....*'});
 
     const expectedValuePosition0 = 2;
-    const actualValuePosition0   = minesweeper.getMines({position: 0});
+    const actualValuePosition0   = minesweeper.getSurroundingMines({position: 0});
     assert.deepEqual(actualValuePosition0, expectedValuePosition0, `Position 0 has 2 mines in its surroundings`);
 
     const expectedValuePosition3 = 1;
-    const actualValuePosition3   = minesweeper.getMines({position: 3});
+    const actualValuePosition3   = minesweeper.getSurroundingMines({position: 3});
     assert.deepEqual(actualValuePosition3, expectedValuePosition3, `Position 3 has 1 mines in its surroundings`);
 
     const expectedValuePosition10 = 5;
-    const actualValuePosition10   = minesweeper.getMines({position: 10});
+    const actualValuePosition10   = minesweeper.getSurroundingMines({position: 10});
     assert.deepEqual(actualValuePosition10, expectedValuePosition10, `Position 10 has 5 mines in its surroundings`);
 
     const expectedValuePosition15 = 3;
-    const actualValuePosition15   = minesweeper.getMines({position: 15});
+    const actualValuePosition15   = minesweeper.getSurroundingMines({position: 15});
     assert.deepEqual(actualValuePosition15, expectedValuePosition15, `Position 15 has 3 mines in its surroundings`);
 
     const expectedValuePosition16 = 2;
-    const actualValuePosition16   = minesweeper.getMines({position: 16});
+    const actualValuePosition16   = minesweeper.getSurroundingMines({position: 16});
     assert.deepEqual(actualValuePosition16, expectedValuePosition16, `Position 16 has 2 mines in its surroundings`);
 
     assert.end();
@@ -389,7 +389,7 @@ test('minesweeper can return how many mines are in a field\'s surroundings (no m
     const minesweeper = Minesweeper({width: 2, height: 3, initialMap: '......'});
 
     const expectedValuePosition = 0;
-    const actualValuePosition   = minesweeper.getMines({position: 0});
+    const actualValuePosition   = minesweeper.getSurroundingMines({position: 0});
     assert.deepEqual(actualValuePosition, expectedValuePosition, `No mines in the surroundings`);
 
     assert.end();
