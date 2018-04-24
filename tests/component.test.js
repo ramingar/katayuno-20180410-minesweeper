@@ -5,10 +5,8 @@ import test from 'tape';
 const Minesweeper = function ({width, height, initialMap = ''}) {
 
     const MINE_VALUE          = '*';
-    const SAFE_FIELD_VALUE    = '.';
     const OUT_OF_BOUNDS_VALUE = '-';
-
-    let next_field = '.';
+    const BREAK_LINE          = '\n';
 
     const LAST_POSITION         = initialMap.length - 1;
     const LEFT_POSITION         = -1;
@@ -21,43 +19,21 @@ const Minesweeper = function ({width, height, initialMap = ''}) {
     const BOTTOM_RIGHT_POSITION = BOTTOM_POSITION + RIGHT_POSITION;
 
     const showMap = function () {
-        return initialMap.split('').reduce(buildMap, '');
+        const solveMap = (acc, currentValue, index) =>
+            acc += isMine({value: currentValue}) ? '*' : getMines({position: index});
+
+        return buildBoard(
+            initialMap.split('').reduce(solveMap, '')
+        );
     };
 
-    const buildMap = function (acc, field) {
-        if (isMine(field)) {
-            acc += manageMine();
-        }
-        else if (next_field === '1') {
-            acc += manageWarn();
-        }
-        else {
-            acc += '.';
-        }
-
-        return acc;
+    const buildBoard = function (finalMap) {
+        return finalMap.split('').reduce((acc, curr, index) =>
+            acc += 0 < index && 0 === index % parseInt(width) ? BREAK_LINE + curr : curr, '');
     };
 
-    const manageMine = function () {
-        next_field = '1';
-        return MINE_VALUE;
-    };
-
-    const manageWarn = function () {
-        next_field = '.';
-        return '1';
-    };
-
-    const isMine = function (field) {
-        return field === MINE_VALUE;
-    };
-
-    const safePositions = function ({map = initialMap, ...rest} = {}) {
-        const addIndexIfSafePosition = (acc, value, index) => SAFE_FIELD_VALUE === value ? acc.concat(index) : acc;
-        return Object.freeze({
-            safePositions: map.split('').reduce(addIndexIfSafePosition, []),
-            ...rest
-        });
+    const isMine = function ({value}) {
+        return value === MINE_VALUE;
     };
 
     const getValue = function ({position}) {
@@ -138,9 +114,24 @@ const Minesweeper = function ({width, height, initialMap = ''}) {
             getAfterValue({currentPosition: position, positionToReach: BOTTOM_RIGHT_POSITION}) : OUT_OF_BOUNDS_VALUE;
     };
 
+    const getMines = function ({position}) {
+        const countMines = (acc, currentValue) => isMine({value: currentValue}) ? ++acc : acc;
+        return [
+            getTopLeftValue({position}),
+            getTopValue({position}),
+            getTopRightValue({position}),
+            getLeftValue({position}),
+            getRightValue({position}),
+            getBottomLeftValue({position}),
+            getBottomValue({position}),
+            getBottomRightValue({position})
+        ].reduce(countMines, 0);
+    };
+
     return Object.freeze({
-        showMap, safePositions, getLeftValue, getRightValue, getTopValue, getBottomValue,
-        getTopLeftValue, getTopRightValue, getBottomLeftValue, getBottomRightValue
+        showMap, getLeftValue, getRightValue, getTopValue, getBottomValue,
+        getTopLeftValue, getTopRightValue, getBottomLeftValue, getBottomRightValue,
+        getMines
     });
 };
 
@@ -157,7 +148,7 @@ test('shows no map for no coordinates', (assert) => {
 });
 
 test('shows a map with one field', (assert) => {
-    const oneFieldMap = '.';
+    const oneFieldMap = '0';
     const minesweeper = Minesweeper({width: 1, height: 1, initialMap: '.'});
 
     const map = minesweeper.showMap();
@@ -187,22 +178,12 @@ test('minesweeper with one mine and one warn', (assert) => {
 });
 
 test('minesweeper with one mine, one warn and an empty field', (assert) => {
-    const expected    = '*1.';
+    const expected    = '*10';
     const minesweeper = Minesweeper({width: 3, height: 1, initialMap: '*..'});
 
     const map = minesweeper.showMap();
 
     assert.equal(map, expected, 'Map must have one mine and maps warns how many mines there are');
-    assert.end();
-});
-
-test('minesweeper can return position of no mine fields', (assert) => {
-    const expected    = [0, 3, 4];
-    const minesweeper = Minesweeper({width: 5, height: 1, initialMap: '.**..'});
-
-    const {safePositions} = minesweeper.safePositions();
-
-    assert.deepEqual(safePositions, expected, 'We can know the position of the safe fields');
     assert.end();
 });
 
@@ -374,6 +355,52 @@ test('minesweeper can return the BOTTOM-RIGHT field value of a given field', (as
     const actualValueOutOfBounds   = minesweeper.getBottomRightValue({position: 5});
     assert.deepEqual(actualValueOutOfBounds, expectedValueOutOfBounds, `There is no field in the bottom-right position because you are in the last row`);
 
+
+    assert.end();
+});
+
+test('minesweeper can return how many mines are in a field\'s surroundings', (assert) => {
+    const minesweeper = Minesweeper({width: 4, height: 5, initialMap: '.*...**....****....*'});
+
+    const expectedValuePosition0 = 2;
+    const actualValuePosition0   = minesweeper.getMines({position: 0});
+    assert.deepEqual(actualValuePosition0, expectedValuePosition0, `Position 0 has 2 mines in its surroundings`);
+
+    const expectedValuePosition3 = 1;
+    const actualValuePosition3   = minesweeper.getMines({position: 3});
+    assert.deepEqual(actualValuePosition3, expectedValuePosition3, `Position 3 has 1 mines in its surroundings`);
+
+    const expectedValuePosition10 = 5;
+    const actualValuePosition10   = minesweeper.getMines({position: 10});
+    assert.deepEqual(actualValuePosition10, expectedValuePosition10, `Position 10 has 5 mines in its surroundings`);
+
+    const expectedValuePosition15 = 3;
+    const actualValuePosition15   = minesweeper.getMines({position: 15});
+    assert.deepEqual(actualValuePosition15, expectedValuePosition15, `Position 15 has 3 mines in its surroundings`);
+
+    const expectedValuePosition16 = 2;
+    const actualValuePosition16   = minesweeper.getMines({position: 16});
+    assert.deepEqual(actualValuePosition16, expectedValuePosition16, `Position 16 has 2 mines in its surroundings`);
+
+    assert.end();
+});
+
+test('minesweeper can return how many mines are in a field\'s surroundings (no mines)', (assert) => {
+    const minesweeper = Minesweeper({width: 2, height: 3, initialMap: '......'});
+
+    const expectedValuePosition = 0;
+    const actualValuePosition   = minesweeper.getMines({position: 0});
+    assert.deepEqual(actualValuePosition, expectedValuePosition, `No mines in the surroundings`);
+
+    assert.end();
+});
+
+test('minesweeper can return the map solved', (assert) => {
+    const minesweeper = Minesweeper({width: 4, height: 3, initialMap: '.*...**....****....*'});
+
+    const expectedMap = '2*31\n2**2\n355*\n***3\n233*';
+    const actualMap   = minesweeper.showMap();
+    assert.deepEqual(actualMap, expectedMap, `Map is solved`);
 
     assert.end();
 });
