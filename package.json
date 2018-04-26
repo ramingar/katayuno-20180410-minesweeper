@@ -1,6 +1,6 @@
 {
   "name": "katayuno-20180410-minesweeper",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "main": "web/index.html",
   "description": "Katayuno día 10 de abril de 2018",
   "scripts": {
